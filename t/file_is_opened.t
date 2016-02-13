@@ -23,21 +23,23 @@ use warnings;
 
 use lib './t/lib';
 use BaseTestCase;
+use File::Temp;
 
 use Test::More tests => 2;
 
-set_mock_stdout('locate', "/dir2/foo\n");
+my $file = create_test_file('foo');
+set_mock_stdout('locate', "$file\n");
 
-my $log = "/tmp/log.vi";
-set_mock_log_file('vi', $log);
+my $tmp = File::Temp->new();
+
+set_mock_log_file('vi', $tmp->filename);
 
 my $result = run_script("foo");
 
-open(my $fh, '<', $log) or die("Error opening $log: $!");;
+open(my $fh, '<', $tmp->filename) or die("Error opening $tmp->filename: $!");
 
 my @lines = <$fh>;
 
 ok(@lines);
-chomp $lines[0];
 
-is($lines[0], "ARGV=/dir2/foo", "opens the found file");
+is($lines[0], "ARGV=$file", "opens the found file");

@@ -26,7 +26,9 @@ use BaseTestCase;
 
 use Test::More tests => 1;
 
-set_mock_stdout('locate', "/dir2/foo\n");
+my $test_file = create_test_file("foo");
+
+set_mock_stdout('locate', "$test_file\n");
 
 my $result = run_script("foo");
 

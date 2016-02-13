@@ -1,5 +1,3 @@
-#!/usr/bin/env perl
-
 #-------------------------------------------------------------------------------
 #
 # Copyright (C) 2016  Jose M. Alonso M.
@@ -19,60 +17,33 @@
 #
 #-------------------------------------------------------------------------------
 
-use 5.8.0;
+use 5.8.8;
 use strict;
 use warnings;
 
-package Locator;
+use lib './t/lib';
+use BaseTestCase;
+use File::Temp qw(tempdir);
 
-sub new {
+use Test::More tests => 3;
 
-    my $class = shift;
-    my $self = {};
+my $directory = create_test_directory('foo_directory');
+my $file = create_test_file('foo_file');
 
-    return bless $self, $class;
-}
+set_mock_stdout('locate', "$directory\n");
 
-sub search_files {
+my $result = run_script("foo");
+is($result->{output}, "file not found\n", "only tries to open files");
 
-    my ($self, $filename) = @_;
+my $tmp = File::Temp->new();
+set_mock_log_file('vi', $tmp->filename);
 
-    my @all = `locate -e -i -b -r "^$filename"`;
+set_mock_stdout('locate', "$directory\n$file\n");
+$result = run_script("bar");
 
-    map { chomp } @all;
+open(my $fh, '<', $tmp->filename) or die("Error opening $tmp->filename: $!");
+my @lines = <$fh>;
 
-    my @files = grep(-f $_, @all);
+ok(@lines);
 
-    return @files;
-}
-
-package Viewer;
-
-sub new {
-
-    my $class = shift;
-    my $self = { viewer => 'vi' };
-
-    return bless $self, $class;
-}
-
-sub open {
-
-    my ($self, $filename) = @_;
-
-    exec($self->{viewer}, $filename);
-}
-
-package main;
-
-my @files = Locator->new()->search_files(shift);
-
-unless (@files) {
-
-    print STDERR "file not found\n";
-    exit(1);
-}
-
-Viewer->new()->open(shift @files);
-
-exit(0);
+is($lines[0], "ARGV=$file", "opens the found file");

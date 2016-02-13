@@ -25,16 +25,18 @@ use warnings;
 
 use base 'Exporter';
 our @EXPORT = qw(clear_mock_env
-    run_script set_mock_log_file set_mock_stdout set_mock_exit_status);
-
-use Config;
-$ENV{PATH} = 't/mocks' . $Config{path_sep} . $ENV{PATH};
+    run_script set_mock_log_file set_mock_stdout set_mock_exit_status
+    create_test_directory create_test_file);
 
 BEGIN {
 
     use MockCommand;
     clear_mock_env();
 }
+
+use Config;
+$ENV{PATH} = 't/mocks' . $Config{path_sep} . $ENV{PATH};
+use File::Temp qw(tempdir);
 
 sub run_script {
 
@@ -46,6 +48,45 @@ sub run_script {
     my $status = $? >> 8;
 
     return { output => $output, status => $status };
+}
+
+my $temp_dir;
+
+sub create_test_file {
+
+    my $filename = shift;
+    my $temp_dir = get_temp_dir();
+
+    $filename = $temp_dir . '/' . $filename;
+
+    open(my $fh, '>', $filename)
+        or die("Error opening $filename: $!");
+
+    return $filename;
+}
+
+sub get_temp_dir {
+
+    unless (defined $temp_dir) {
+
+        $temp_dir = tempdir(CLEANUP => 1);
+    }
+
+    return $temp_dir;
+}
+
+sub create_test_directory {
+
+    my $dirname = shift;
+
+    my $temp_dir = get_temp_dir();
+
+    $dirname = $temp_dir . '/' . $dirname;
+
+    mkdir($dirname)
+        or die("Error creating directory $dirname: $!");
+
+    return $dirname;
 }
 
 1;

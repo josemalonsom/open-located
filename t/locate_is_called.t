@@ -1,5 +1,3 @@
-#!/usr/bin/env perl
-
 #-------------------------------------------------------------------------------
 #
 # Copyright (C) 2016  Jose M. Alonso M.
@@ -19,60 +17,27 @@
 #
 #-------------------------------------------------------------------------------
 
-use 5.8.0;
+use 5.8.8;
 use strict;
 use warnings;
 
-package Locator;
+use lib './t/lib';
+use BaseTestCase;
+use File::Temp;
 
-sub new {
+use Test::More tests => 2;
 
-    my $class = shift;
-    my $self = {};
+my $tmp = File::Temp->new();
 
-    return bless $self, $class;
-}
+set_mock_log_file('locate', $tmp->filename);
 
-sub search_files {
+my $result = run_script("foo");
 
-    my ($self, $filename) = @_;
+open(my $fh, '<', $tmp->filename) or die("Error opening $tmp->filename: $!");
 
-    my @all = `locate -e -i -b -r "^$filename"`;
+my @lines = <$fh>;
 
-    map { chomp } @all;
+ok(@lines);
+chomp $lines[0];
 
-    my @files = grep(-f $_, @all);
-
-    return @files;
-}
-
-package Viewer;
-
-sub new {
-
-    my $class = shift;
-    my $self = { viewer => 'vi' };
-
-    return bless $self, $class;
-}
-
-sub open {
-
-    my ($self, $filename) = @_;
-
-    exec($self->{viewer}, $filename);
-}
-
-package main;
-
-my @files = Locator->new()->search_files(shift);
-
-unless (@files) {
-
-    print STDERR "file not found\n";
-    exit(1);
-}
-
-Viewer->new()->open(shift @files);
-
-exit(0);
+is($lines[0], "ARGV=-e,-i,-b,-r,^foo", "locate is called as expected");
