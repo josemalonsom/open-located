@@ -25,9 +25,6 @@ use lib './t/lib';
 use Test::More tests => 5;
 
 use BaseTestCase;
-use MockCommand;
-
-clear_mock_env();
 
 my $result;
 

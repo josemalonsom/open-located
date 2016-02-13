@@ -29,6 +29,12 @@ our @EXPORT = qw(clear_mock_env run_script);
 use Config;
 $ENV{PATH} = 't/mocks' . $Config{path_sep} . $ENV{PATH};
 
+BEGIN {
+
+    use MockCommand;
+    clear_mock_env();
+}
+
 sub run_script {
 
     my $param = shift || '';
@@ -40,3 +46,5 @@ sub run_script {
 
     return { output => $output, status => $status };
 }
+
+1;
