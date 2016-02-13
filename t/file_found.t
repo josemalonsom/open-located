@@ -17,35 +17,17 @@
 #
 #-------------------------------------------------------------------------------
 
-package BaseTestCase;
-
 use 5.8.8;
 use strict;
 use warnings;
 
-use base 'Exporter';
-our @EXPORT = qw(clear_mock_env
-    run_script set_mock_log_file set_mock_stdout set_mock_exit_status);
+use lib './t/lib';
+use BaseTestCase;
 
-use Config;
-$ENV{PATH} = 't/mocks' . $Config{path_sep} . $ENV{PATH};
+use Test::More tests => 1;
 
-BEGIN {
+set_mock_stdout('locate', "/dir2/foo\n");
 
-    use MockCommand;
-    clear_mock_env();
-}
+my $result = run_script("foo");
 
-sub run_script {
-
-    my $param = shift || '';
-
-    my $script = './open-located.pl';
-
-    my $output = `$script $param 2>&1`;
-    my $status = $? >> 8;
-
-    return { output => $output, status => $status };
-}
-
-1;
+is($result->{status}, 0, "ends with success if file is found");

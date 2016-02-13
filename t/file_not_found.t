@@ -22,30 +22,14 @@ use strict;
 use warnings;
 
 use lib './t/lib';
-use Test::More tests => 5;
-
 use BaseTestCase;
 
-my $result;
+use Test::More tests => 2;
 
-$result = run_script("foo");
-is($result->{status}, 1, "fails if file isn't found");
-is($result->{output}, "file not found\n", "shows an error message if file isn't found");
+my $result = run_script("foo");
 
-$ENV{'MOCK_STDOUT_LOCATE'} = "/dir2/foo\n";
-$result = run_script("foo");
-is($result->{status}, 0, "ends with success if file is found");
+is($result->{status}, 1,
+    "fails if file isn't found");
 
-$ENV{'MOCK_STDOUT_LOCATE'} = "/dir2/foo\n";
-
-my $log = "/tmp/log.vi";
-$ENV{'MOCK_LOG_VI'} = $log;
-$result = run_script("foo");
-
-open(my $fh, '<', $log) or die($!);;
-
-my @lines = <$fh>;
-
-ok(@lines);
-chomp $lines[0];
-is($lines[0], "ARGV=/dir2/foo", "opens the found file");
+is($result->{output}, "file not found\n",
+    "shows an error message if file isn't found");

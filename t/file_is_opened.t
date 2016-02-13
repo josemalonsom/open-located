@@ -17,35 +17,27 @@
 #
 #-------------------------------------------------------------------------------
 
-package BaseTestCase;
-
 use 5.8.8;
 use strict;
 use warnings;
 
-use base 'Exporter';
-our @EXPORT = qw(clear_mock_env
-    run_script set_mock_log_file set_mock_stdout set_mock_exit_status);
+use lib './t/lib';
+use BaseTestCase;
 
-use Config;
-$ENV{PATH} = 't/mocks' . $Config{path_sep} . $ENV{PATH};
+use Test::More tests => 2;
 
-BEGIN {
+set_mock_stdout('locate', "/dir2/foo\n");
 
-    use MockCommand;
-    clear_mock_env();
-}
+my $log = "/tmp/log.vi";
+set_mock_log_file('vi', $log);
 
-sub run_script {
+my $result = run_script("foo");
 
-    my $param = shift || '';
+open(my $fh, '<', $log) or die("Error opening $log: $!");;
 
-    my $script = './open-located.pl';
+my @lines = <$fh>;
 
-    my $output = `$script $param 2>&1`;
-    my $status = $? >> 8;
+ok(@lines);
+chomp $lines[0];
 
-    return { output => $output, status => $status };
-}
-
-1;
+is($lines[0], "ARGV=/dir2/foo", "opens the found file");

@@ -39,7 +39,15 @@ use warnings;
 
 use File::Basename;
 use base 'Exporter';
-our @EXPORT = qw/clear_mock_env run/;
+our @EXPORT = qw(
+    clear_mock_env run set_mock_log_file set_mock_stdout set_mock_exit_status);
+
+use constant {
+
+    EXIT_STATUS_PREFIX => 'MOCK_EXIT_STATUS_',
+    LOG_PREFIX         => 'MOCK_LOG_',
+    STDOUT_PREFIX      => 'MOCK_STDOUT_',
+};
 
 sub clear_mock_env {
 
@@ -51,16 +59,62 @@ sub clear_mock_env {
     }
 }
 
+sub set_mock_log_file {
+
+    my ($cmd, $filename) = @_;
+    set_env(get_mock_log_file_var_name($cmd), $filename);
+}
+
+sub get_mock_log_file_var_name {
+
+    return get_env_var_name(LOG_PREFIX, @_);
+}
+
+sub get_env_var_name {
+
+    my ($prefix, $cmd) = @_;
+    return $prefix . uc($cmd);
+}
+
+sub set_env {
+
+    my ($var_name, $value) = @_;
+
+    $ENV{$var_name} = $value;
+}
+
+sub set_mock_stdout {
+
+    my ($cmd, $value) = @_;
+    set_env(get_mock_stdout_var_name($cmd), $value);
+}
+
+sub get_mock_stdout_var_name {
+
+    return get_env_var_name(STDOUT_PREFIX, @_);
+}
+
+sub set_mock_exit_status {
+
+    my ($cmd, $value) = @_;
+    set_env(get_mock_exit_status_var_name($cmd), $value);
+}
+
+sub get_mock_exit_status_var_name {
+
+    return get_env_var_name(EXIT_STATUS_PREFIX, @_);
+}
+
 sub run {
 
-    my $cmd         = uc(basename($0));
-    my $log_key     = 'MOCK_LOG_' . $cmd;
-    my $stdout_key  = 'MOCK_STDOUT_' . $cmd;
-    my $status_key  = 'MOCK_EXIT_STATUS_' . $cmd;
+    my $cmd         = basename($0);
+    my $log_var     = get_mock_log_file_var_name($cmd);
+    my $stdout_var  = get_mock_stdout_var_name($cmd);
+    my $status_var  = get_mock_exit_status_var_name($cmd);
 
-    if (exists $ENV{$log_key}) {
+    if (exists $ENV{$log_var}) {
 
-        my $log_file = $ENV{$log_key};
+        my $log_file = $ENV{$log_var};
 
         open (my $log, '>', $log_file)
             or die("Error opening '$log_file': $!");
@@ -68,13 +122,13 @@ sub run {
         print $log "ARGV=" . join(",",@ARGV);
     }
 
-    if (exists $ENV{$stdout_key}) {
+    if (exists $ENV{$stdout_var}) {
 
-        print $ENV{$stdout_key};
+        print $ENV{$stdout_var};
     }
 
-    my $exit_status = exists $ENV{$status_key}
-        ? exists $ENV{$status_key}
+    my $exit_status = exists $ENV{$status_var}
+        ? exists $ENV{$status_var}
         : 0;
 
     exit($exit_status);
