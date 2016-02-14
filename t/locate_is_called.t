@@ -23,13 +23,10 @@ use warnings;
 
 use lib './t/lib';
 use BaseTestCase;
-use File::Temp;
 
 use Test::More tests => 2;
 
-my $tmp = File::Temp->new();
-
-set_mock_log_file('locate', $tmp->filename);
+my $tmp = get_mock_log_for('locate');
 
 my $result = run_script("foo");
 

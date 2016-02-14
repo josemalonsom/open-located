@@ -23,7 +23,6 @@ use warnings;
 
 use lib './t/lib';
 use BaseTestCase;
-use File::Temp qw(tempdir);
 
 use Test::More tests => 3;
 
@@ -35,8 +34,7 @@ set_mock_stdout('locate', "$directory\n");
 my $result = run_script("foo");
 is($result->{output}, "file not found\n", "only tries to open files");
 
-my $tmp = File::Temp->new();
-set_mock_log_file('vi', $tmp->filename);
+my $tmp = get_mock_log_for('vi');
 
 set_mock_stdout('locate', "$directory\n$file\n");
 $result = run_script("bar");

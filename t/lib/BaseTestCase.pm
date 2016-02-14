@@ -26,7 +26,8 @@ use warnings;
 use base 'Exporter';
 our @EXPORT = qw(clear_mock_env
     run_script set_mock_log_file set_mock_stdout set_mock_exit_status
-    create_test_directory create_test_file);
+    create_test_directory create_test_file
+    get_mock_log_for);
 
 BEGIN {
 
@@ -41,10 +42,17 @@ use File::Temp qw(tempdir);
 sub run_script {
 
     my $param = shift || '';
+    my $user_input = shift;
 
     my $script = './open-located.pl';
 
-    my $output = `$script $param 2>&1`;
+    my $cmd = "$script $param 2>&1";
+
+    if ($user_input) {
+        $cmd = "echo \"$user_input\" | $cmd";
+    }
+
+    my $output = `$cmd`;
     my $status = $? >> 8;
 
     return { output => $output, status => $status };
@@ -87,6 +95,21 @@ sub create_test_directory {
         or die("Error creating directory $dirname: $!");
 
     return $dirname;
+}
+
+sub get_temp_file {
+
+    return File::Temp->new();
+}
+
+sub get_mock_log_for {
+
+    my $cmd = shift;
+    my $tmp = get_temp_file();
+
+    set_mock_log_file($cmd, $tmp->filename);
+
+    return $tmp;
 }
 
 1;

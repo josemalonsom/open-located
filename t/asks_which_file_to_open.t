@@ -24,19 +24,32 @@ use warnings;
 use lib './t/lib';
 use BaseTestCase;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
-my $file = create_test_file('foo');
-set_mock_stdout('locate', "$file\n");
+my $file1 = create_test_file('foo_file1');
+my $file2 = create_test_file('foo_file2');
+
+set_mock_stdout('locate', "$file1\n$file2\n");
 
 my $tmp = get_mock_log_for('vi');
 
-my $result = run_script("foo");
+my $expected =
+    "Located more than one file.\n"
+    . "\n"
+    . "[1] $file1\n"
+    . "[2] $file2\n"
+    . "\n"
+    . "[q] quit\n"
+    . "\n"
+    . "Which one do you want to open?\n";
+
+my $result = run_script("foo", "2");
+
+is($result->{output}, $expected);
 
 open(my $fh, '<', $tmp->filename) or die("Error opening $tmp->filename: $!");
-
 my @lines = <$fh>;
 
 ok(@lines);
 
-is($lines[0], "ARGV=$file", "opens the found file");
+is($lines[0], "ARGV=$file2", "opens the choosen file");
