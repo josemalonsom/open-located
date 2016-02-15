@@ -42,13 +42,15 @@ use File::Temp qw(tempdir);
 sub run_script {
 
     my $param = shift || '';
-    my $user_input = shift;
+    my @user_input = @_;
 
     my $script = './open-located.pl';
 
     my $cmd = "$script $param 2>&1";
 
-    if ($user_input) {
+    if (@user_input) {
+
+        my $user_input = join("\n", @user_input);
         $cmd = "echo \"$user_input\" | $cmd";
     }
 

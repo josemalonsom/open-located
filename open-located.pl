@@ -72,9 +72,13 @@ sub ask_user_to_filter_files {
 
         $self->cancel_and_exit() if $user_answer eq 'q';
 
-        if (defined $files[$user_answer - 1]) {
-            $chosen_file = $files[$user_answer - 1];
+        if ($user_answer !~ /^\d+$/ || ! defined $files[$user_answer - 1]) {
+
+            print "\nincorrect option [$user_answer]\n\n";
+            next;
         }
+
+        $chosen_file = $files[$user_answer - 1];
     }
 
     return $chosen_file;
