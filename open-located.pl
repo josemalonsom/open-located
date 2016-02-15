@@ -59,9 +59,7 @@ sub new {
 sub ask_user_to_filter_files {
 
     my ($self, @files) = @_;
-
     my $menu = $self->get_menu(@files);
-
     my $chosen_file;
 
     while ( ! $chosen_file ) {
@@ -72,12 +70,20 @@ sub ask_user_to_filter_files {
 
         chomp $user_answer;
 
+        $self->cancel_and_exit() if $user_answer eq 'q';
+
         if (defined $files[$user_answer - 1]) {
             $chosen_file = $files[$user_answer - 1];
         }
     }
 
     return $chosen_file;
+}
+
+sub cancel_and_exit {
+
+    print "canceled by user\n";
+    exit(1);
 }
 
 sub get_menu {
