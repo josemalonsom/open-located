@@ -26,10 +26,7 @@ use BaseTestCase;
 
 use Test::More tests => 1;
 
-my $file1 = create_test_file('foo_file1');
-my $file2 = create_test_file('foo_file2');
-
-set_mock_stdout('locate', "$file1\n$file2\n");
+set_mock_stdout('locate', join("\n", create_test_files('foo', 2)));
 
 my $result = run_script("foo", "q");
 

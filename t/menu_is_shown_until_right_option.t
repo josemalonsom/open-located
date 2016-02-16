@@ -26,18 +26,15 @@ use BaseTestCase;
 
 use Test::More tests => 3;
 
-my $file1 = create_test_file('foo_file1');
-my $file2 = create_test_file('foo_file2');
-
-set_mock_stdout('locate', "$file1\n$file2\n");
+my @files = create_test_files('foo', 2);
+set_mock_stdout('locate', join("\n", @files));
 
 my $tmp = get_mock_log_for('vi');
 
 my $menu_string =
     "Located more than one file.\n"
     . "\n"
-    . "[1] $file1\n"
-    . "[2] $file2\n"
+    . get_menu_selection_content(@files)
     . "\n"
     . "[q] quit\n"
     . "\n"
@@ -54,4 +51,4 @@ my @lines = <$fh>;
 
 ok(@lines);
 
-is($lines[0], "ARGV=$file2", "opens the choosen file");
+is($lines[0], "ARGV=$files[1]", "opens the choosen file");

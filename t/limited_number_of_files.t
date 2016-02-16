@@ -26,41 +26,20 @@ use BaseTestCase;
 
 use Test::More tests => 1;
 
-sub create_test_files {
-
-    my $total = shift;
-
-    my @files;
-
-    for (my $i = 1; $i <= $total; ++$i) {
-
-        push(@files, create_test_file("foo_file$i"));
-    }
-
-    return @files;
-}
-
 my $max_files = 10;
 my $total_test_files = 15;
 my $remainder = $total_test_files - $max_files;
 
-my @files = create_test_files($total_test_files);
+my @files = create_test_files('foo', $total_test_files);
 
 set_mock_stdout('locate', join("\n", @files));
 
 my @slice = @files[0 .. $max_files - 1];
 
-my $content = "";
-
-for (my $i = 0; $i < @slice; ++$i) {
-
-    $content .= sprintf("[%d] %s\n", $i + 1, $slice[$i]);
-}
-
 my $menu_string =
     "Located more than one file.\n"
     . "\n"
-    . $content
+    . get_menu_selection_content(@slice)
     . "\n(there are $remainder more files not shown)\n"
     . "\n"
     . "[q] quit\n"

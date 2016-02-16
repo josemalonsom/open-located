@@ -26,8 +26,8 @@ use warnings;
 use base 'Exporter';
 our @EXPORT = qw(clear_mock_env
     run_script set_mock_log_file set_mock_stdout set_mock_exit_status
-    create_test_directory create_test_file
-    get_mock_log_for);
+    create_test_directory create_test_file create_test_files
+    get_mock_log_for get_menu_selection_content);
 
 BEGIN {
 
@@ -112,6 +112,34 @@ sub get_mock_log_for {
     set_mock_log_file($cmd, $tmp->filename);
 
     return $tmp;
+}
+
+sub create_test_files {
+
+    my $prefix = shift;
+    my $total = shift || 1;
+
+    my @files;
+
+    for (my $i = 1; $i <= $total; ++$i) {
+
+        push(@files, create_test_file($prefix . $i));
+    }
+
+    return @files;
+}
+
+sub get_menu_selection_content {
+
+    my @items = @_;
+    my $content = "";
+
+    for (my $i = 0; $i < @items; ++$i) {
+
+        $content .= sprintf("[%d] %s\n", $i + 1, $items[$i]);
+    }
+
+    return $content;
 }
 
 1;
