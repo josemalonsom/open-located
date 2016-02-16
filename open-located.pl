@@ -50,8 +50,14 @@ package ScreenMenu;
 
 sub new {
 
-    my $class = shift;
-    my $self = { viewer => 'vi' };
+    my ($class, $max_files) = @_;
+
+    $max_files ||= 10;
+
+    my $self = {
+        max_files => $max_files,
+        viewer          => 'vi'
+    };
 
     return bless $self, $class;
 }
@@ -59,7 +65,7 @@ sub new {
 sub ask_user_to_filter_files {
 
     my ($self, @files) = @_;
-    my $menu = $self->get_menu(@files);
+    my $menu = $self->get_menu(\@files);
     my $chosen_file;
 
     while ( ! $chosen_file ) {
@@ -92,13 +98,14 @@ sub cancel_and_exit {
 
 sub get_menu {
 
-    my ($self, @files) = @_;
+    my ($self, $files) = @_;
 
-    my $options = "";
+    my $content = $self->get_selection_content($files);
 
-    for  (my $i = 0; $i < @files; ++$i) {
+    if ($self->{max_files} < @{$files}) {
 
-        $options .= sprintf("[%s] %s\n", $i + 1, $files[$i]);
+        my $diff = @{$files} - $self->{max_files};
+        $content .= "\n(there are $diff more files not shown)\n";
     }
 
     my $menu_template =
@@ -108,7 +115,24 @@ sub get_menu {
         . "\n"
         . "Which one do you want to open?\n";
 
-    return sprintf($menu_template, $options);
+    return sprintf($menu_template, $content);
+}
+
+sub get_selection_content {
+
+    my ($self, $files) = @_;
+    my $content = "";
+
+    my $max_index = $self->{max_files} <= @{$files}
+        ? $self->{max_files}
+        : @{$files};
+
+    for  (my $i = 0; $i < $max_index; ++$i) {
+
+        $content .= sprintf("[%s] %s\n", $i + 1, @{$files}[$i]);
+    }
+
+    return $content;
 }
 
 package Viewer;
