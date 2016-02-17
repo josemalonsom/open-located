@@ -43,7 +43,16 @@ sub search_files {
 
     my @files = grep(-f $_, @all);
 
+    @files = $self->sort_files_by_mtime_ascending(@files) if (@files);
+
     return @files;
+}
+
+sub sort_files_by_mtime_ascending {
+
+    my ($self, @files) = @_;
+
+    return sort { (stat($a))[9] <=> (stat($b))[9] } @files;
 }
 
 package ScreenMenu;
