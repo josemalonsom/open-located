@@ -40,14 +40,7 @@ foreach my $file (@newest_to_older) {
     $timestamp += 60;
 }
 
-my $menu_string =
-    "Located more than one file.\n"
-    . "\n"
-    . get_menu_selection_content(@newest_to_older)
-    . "\n"
-    . "[q] quit\n"
-    . "\n"
-    . "Which one do you want to open?\n";
+my $menu_string = get_menu_selection(\@newest_to_older);
 
 my $result = run_script("foo", "1");
 

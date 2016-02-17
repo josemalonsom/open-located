@@ -31,14 +31,7 @@ set_mock_stdout('locate', join("\n", @files));
 
 my $tmp = get_mock_log_for('vi');
 
-my $menu_string =
-    "Located more than one file.\n"
-    . "\n"
-    . get_menu_selection_content(@files)
-    . "\n"
-    . "[q] quit\n"
-    . "\n"
-    . "Which one do you want to open?\n";
+my $menu_string = get_menu_selection(\@files);
 
 my $expected = $menu_string . "\nincorrect option [3]\n\n" . $menu_string;
 

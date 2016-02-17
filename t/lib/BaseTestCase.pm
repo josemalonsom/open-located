@@ -27,7 +27,7 @@ use base 'Exporter';
 our @EXPORT = qw(clear_mock_env
     run_script set_mock_log_file set_mock_stdout set_mock_exit_status
     create_test_directory create_test_file create_test_files
-    get_mock_log_for get_menu_selection_content);
+    get_mock_log_for get_menu_selection);
 
 BEGIN {
 
@@ -127,6 +127,27 @@ sub create_test_files {
     }
 
     return @files;
+}
+
+sub get_menu_selection {
+
+    my ($files, $remainder) = @_;
+
+    $remainder = $remainder
+        ? "\n(there are $remainder more files not shown)\n"
+        : "";
+
+    my $menu_string =
+        "Located more than one file.\n"
+        . "\n"
+        . get_menu_selection_content(@{$files})
+        . $remainder
+        . "\n"
+        . "[q] quit\n"
+        . "\n"
+        . "Which one do you want to open?\n";
+
+    return $menu_string;
 }
 
 sub get_menu_selection_content {

@@ -36,15 +36,7 @@ set_mock_stdout('locate', join("\n", @files));
 
 my @slice = @files[0 .. $max_files - 1];
 
-my $menu_string =
-    "Located more than one file.\n"
-    . "\n"
-    . get_menu_selection_content(@slice)
-    . "\n(there are $remainder more files not shown)\n"
-    . "\n"
-    . "[q] quit\n"
-    . "\n"
-    . "Which one do you want to open?\n";
+my $menu_string = get_menu_selection(\@slice, $remainder);
 
 my $result = run_script("foo", "1");
 
