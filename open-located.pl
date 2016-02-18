@@ -64,8 +64,7 @@ sub new {
     $max_files ||= 10;
 
     my $self = {
-        max_files => $max_files,
-        viewer          => 'vi'
+        max_files => $max_files
     };
 
     return bless $self, $class;
