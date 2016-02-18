@@ -145,10 +145,15 @@ sub get_selection_content {
 
 package Viewer;
 
+use constant DEFAULT_VIEWER => 'vi';
+
 sub new {
 
     my $class = shift;
-    my $self = { viewer => 'vi' };
+
+    my $self = {};
+
+    $self->{viewer} = $ENV{OPEN_LOCATED_VIEWER} || DEFAULT_VIEWER;
 
     return bless $self, $class;
 }
